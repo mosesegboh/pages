@@ -1,6 +1,8 @@
 import React, {useState} from "react";
 import {Link} from "@reach/router";
 import {Container, Row, Form, Col, Button, Alert} from 'react-bootstrap';
+import { auth } from "../firebase";
+import { UserContext } from "../providers/UserProvider";
 
 
 const PasswordReset = () => {
@@ -15,10 +17,18 @@ const PasswordReset = () => {
         }
       };
 
-    const sendResetEmail = event => {
-    event.preventDefault();
-    };  
-
+      const sendResetEmail = event => {
+        event.preventDefault();
+        auth
+          .sendPasswordResetEmail(email)
+          .then(() => {
+              setEmailHasBeenSent(true);
+            setTimeout(() => {setEmailHasBeenSent(false)}, 3000);
+          })
+          .catch(() => {
+            setError("Error resetting password");
+          });
+      };
     return(
         <div>
       <Container>
@@ -42,7 +52,11 @@ const PasswordReset = () => {
                 />
             </Form.Group>
 
-            <Button variant="primary">
+            <Button variant="primary"
+            onClick={event => {
+              sendResetEmail(event);
+            }}
+            >
                 Send me a reset Link!
             </Button>
         
